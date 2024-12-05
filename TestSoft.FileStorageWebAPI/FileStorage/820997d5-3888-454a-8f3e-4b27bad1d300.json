@@ -1,10 +1,1 @@
-{
-  "Id": "820997d5-3888-454a-8f3e-4b27bad1d300",
-  "Data": {
-    "firstName": "Ivan",
-    "lastName": "Ivanov",
-    "patronymic": "Ivanovich",
-    "age": 18,
-    "health": { "allergy": "NaN" }
-  }
-}
+{"Id":"820997d5-3888-454a-8f3e-4b27bad1d300","Data":{"firstName":"Ivan","lastName":"Ivanov","patronymic":"Ivanovich","age":18,"health":{"allergy":"NaN"}}}
