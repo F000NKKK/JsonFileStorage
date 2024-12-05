@@ -9,54 +9,43 @@
 
     <Grid>
         <TabControl>
-            <!-- Tab for Create -->
             <TabItem Header="Create">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
-                        <!-- Растягиваемая строка -->
                         <RowDefinition Height="Auto" />
-                        <!-- Для кнопки -->
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-                    <!-- Create JSON data input (multi-line) -->
                     <TextBox x:Name="CreateTextBox" Grid.Row="0" Margin="10,10,10,10"
                          AcceptsReturn="True" VerticalScrollBarVisibility="Auto" TextWrapping="Wrap"
                          GotFocus="CreateTextBox_GotFocus" LostFocus="CreateTextBox_LostFocus"
                          Grid.RowSpan="2">
                         <TextBox.Text>
                             {
-            "data": {
-                "additionalProp1": "string",
-                "additionalProp2": "string",
-                "additionalProp3": "string"
-            }
-        }
+                                "data": {
+                                    "additionalProp1": "string",
+                                    "additionalProp2": "string",
+                                    "additionalProp3": "string"
+                                }
+                            }
                         </TextBox.Text>
                     </TextBox>
 
-
-
-
-                    <!-- Кнопка для создания -->
                     <Button Content="Create" Grid.Row="2" Width="100" Margin="10" Click="CreateButton_Click" HorizontalAlignment="Left" VerticalAlignment="Bottom" />
                 </Grid>
             </TabItem>
 
-            <!-- Tab for Read -->
             <TabItem Header="Read">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" MinHeight="37.96" />
                         <RowDefinition Height="Auto" MinHeight="39.96" />
                         <RowDefinition Height="*" />
-                        <!-- Растягиваемая строка -->
                         <RowDefinition Height="Auto" />
-                        <!-- Для кнопки -->
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
@@ -68,36 +57,30 @@
                 </Grid>
             </TabItem>
 
-            <!-- Tab for Update -->
             <TabItem Header="Update">
                 <Grid>
                     <Grid.RowDefinitions>
-                        <!-- Строки для полей ввода -->
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
-                        <!-- Это поле будет растягиваться до кнопок -->
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
-                        <!-- Для кнопок -->
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-                    <!-- GUID для обновления -->
                     <TextBox x:Name="UpdateGuidTextBox" Grid.Row="0" Margin="10" Text="Enter GUID to update" 
                              GotFocus="UpdateGuidTextBox_GotFocus" LostFocus="UpdateGuidTextBox_LostFocus" HorizontalAlignment="Stretch" />
 
-                    <!-- Путь для операции -->
                     <TextBox x:Name="PathTextBox" Grid.Row="1" Margin="10"
                              GotFocus="PathTextBox_GotFocus" LostFocus="PathTextBox_LostFocus" HorizontalAlignment="Stretch">
                         <TextBox.Text>
                             health/allergy
                         </TextBox.Text>
                     </TextBox>
-                    <!-- Значение для операции (многострочный, растянутый) -->
-                    <TextBox x:Name="ValueTextBox" Grid.Row="2" Margin="10,22,10,21"  TextWrapping="Wrap"
+
+                    <TextBox x:Name="ValueTextBox" Grid.Row="2" Margin="10,22,10,21" TextWrapping="Wrap"
                              AcceptsReturn="True" VerticalScrollBarVisibility="Auto" GotFocus="ValueTextBox_GotFocus" 
                              LostFocus="ValueTextBox_LostFocus">
                         <TextBox.Text>
@@ -105,12 +88,8 @@
                         </TextBox.Text>
                     </TextBox>
 
-                    <!-- Строка с кнопкой и ComboBox -->
                     <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                        <!-- Кнопка для обновления -->
                         <Button Content="Update" Width="100" Margin="10" Click="UpdateButton_Click" HorizontalAlignment="Left" />
-
-                        <!-- ComboBox для типа операции (add, replace, remove) -->
                         <ComboBox x:Name="OperationComboBox" Width="150" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Center">
                             <ComboBoxItem Content="add" IsSelected="True" />
                             <ComboBoxItem Content="replace" />
@@ -118,21 +97,17 @@
                         </ComboBox>
                     </StackPanel>
 
-                    <!-- Привязка кнопок к низу экрана -->
                     <StackPanel Grid.Row="4" VerticalAlignment="Bottom" HorizontalAlignment="Stretch"/>
                 </Grid>
             </TabItem>
 
-            <!-- Tab for Delete -->
             <TabItem Header="Delete">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
-                        <!-- Растягиваемая строка -->
                         <RowDefinition Height="Auto" />
-                        <!-- Для кнопки -->
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
