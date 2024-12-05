@@ -73,10 +73,19 @@ namespace TestSoft.FileStorageWPFLibrary
             {
                 var content = new StringContent(JsonConvert.SerializeObject(jsonObject), Encoding.UTF8, "application/json");
                 var response = await _httpClient.PostAsync(_apiBaseUrl, content);
+
                 if (response.IsSuccessStatusCode)
                 {
                     var resultContent = await response.Content.ReadAsStringAsync();
+
                     var resultObject = JsonConvert.DeserializeObject<JsonObjectDto>(resultContent);
+
+                    if (response.Headers.Location != null)
+                    {
+                        var id = response.Headers.Location.AbsolutePath.Split('/').Last();
+                        resultObject.Id = Guid.Parse(id);
+                    }
+
                     return new ApiResponse<JsonObjectDto?>(resultObject);
                 }
 
@@ -87,6 +96,7 @@ namespace TestSoft.FileStorageWPFLibrary
                 return new ApiResponse<JsonObjectDto?>(ex.Message, 500);
             }
         }
+
 
         /// <summary>
         /// Deletes a JSON object from the FileStorage API by its ID.

@@ -43,7 +43,8 @@ namespace TestSoft.FileStorageWPFManager
 
                 if (response.IsSuccess)
                 {
-                    ShowResponseInNewWindow($"Created successfully!\r\nData: {response.Data}");
+                    var result = JsonConvert.SerializeObject(response, Formatting.Indented);
+                    ShowResponseInNewWindow($"Created successfully!\r\nData: {result}");
                 }
                 else
                 {
