@@ -69,7 +69,7 @@ namespace TestSoft.FileStorageWPFManager
 
                 if (response.IsSuccess)
                 {
-                    var resultObject = JsonConvert.SerializeObject(response.Data, Formatting.Indented);
+                    var resultObject = JsonConvert.SerializeObject(response.Data.Data, Formatting.Indented);
                     ShowResponseInNewWindow("Read successfully\r\n" + resultObject);
                 }
                 else
@@ -97,7 +97,7 @@ namespace TestSoft.FileStorageWPFManager
                     {
                         Op = OperationComboBox.Text,
                         Path = PathTextBox.Text,
-                        Value = ValueTextBox.Text
+                        Value = JsonConvert.DeserializeObject(ValueTextBox.Text)
                     });
 
                 if (patchRequest == null || patchRequest.Operations == null || patchRequest.Operations.Count == 0)
@@ -110,7 +110,7 @@ namespace TestSoft.FileStorageWPFManager
 
                 if (response.IsSuccess)
                 {
-                    var resultObject = JsonConvert.SerializeObject(response.Data, Formatting.Indented);
+                    var resultObject = JsonConvert.SerializeObject(response.Data.Data, Formatting.Indented);
                     ShowResponseInNewWindow("Updated successfully!\r\n" + resultObject);
                 }
                 else
