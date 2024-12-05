@@ -1,74 +1,77 @@
-name: .NET 8 Desktop and Web API CI/CD
+name: .NET Core Desktop
 
 on:
   push:
-    branches: [ "master" ]  # Используйте вашу основную ветку, если она отличается
+    branches: [ "master" ]  # Событие, при котором workflow будет запускаться
   pull_request:
-    branches: [ "master" ]
+    branches: [ "master" ]  # Событие, при котором workflow будет запускаться
 
 jobs:
-
   build:
-
     strategy:
       matrix:
-        configuration: [Debug, Release]  # Возможные конфигурации сборки
+        configuration: [Debug, Release]  # Запуск в двух конфигурациях: Debug и Release
 
-    runs-on: windows-latest  # Выбираем последнюю версию Windows для CI
+    runs-on: windows-latest  # Используем Windows-образ для CI
 
     env:
-      Solution_Name: TestSoft.sln                            # Имя вашего решения
-      Test_Project_Path: TestSoft.FileStorageWebAPI.Tests/TestSoft.FileStorageWebAPI.Tests.csproj   # Путь к тестам для вашего проекта REST API
-      Wap_Project_Directory: TestSoft.FileStorageWPFManager   # Директория WPF проекта
-      Wap_Project_Path: TestSoft.FileStorageWPFManager/TestSoft.FileStorageWPFManager.csproj  # Путь к проекту упаковки WPF
+      Solution_Name: TestSoft.sln  # Название вашего решения
+      Test_Project_Path: TestSoft.FileStorageWebAPI.Tests/TestSoft.FileStorageWebAPI.Tests.csproj  # Путь к тестовому проекту
+      Wap_Project_Directory: TestSoft.FileStorageWPFManager  # Директория для WPF-приложения
+      Wap_Project_Path: TestSoft.FileStorageWPFManager/TestSoft.FileStorageWPFManager.csproj  # Путь к проекту WPF
+      RestApi_Project_Directory: TestSoft.FileStorageWebAPI  # Директория для REST API проекта
+      RestApi_Project_Path: TestSoft.FileStorageWebAPI/TestSoft.FileStorageWebAPI.csproj  # Путь к проекту REST API
 
     steps:
-    - name: Checkout Code
+    - name: Checkout
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
-    # Устанавливаем .NET 8 SDK
-    - name: Setup .NET 8 SDK
+    # Установка .NET SDK
+    - name: Install .NET SDK
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 8.0.x  # Указываем версию .NET 8
 
-    # Устанавливаем MSBuild для сборки .NET проектов
+    # Установка MSBuild для сборки проектов
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
-    # Восстановление зависимостей для всех проектов в решении
-    - name: Restore Dependencies
-      run: dotnet restore ${{ env.Solution_Name }}
+    # Восстановление зависимостей для решения
+    - name: Restore the application
+      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
+      env:
+        Configuration: ${{ matrix.configuration }}
 
-    # Выполнение тестов
-    - name: Run Tests
-      run: dotnet test ${{ env.Test_Project_Path }} --configuration ${{ matrix.configuration }}
+    # Сборка REST API проекта
+    - name: Build REST API Project
+      run: dotnet build $env:RestApi_Project_Path --configuration ${{ matrix.configuration }}
 
-    # Создание пакета WPF приложения
-    - name: Build WPF Application
-      run: |
-        msbuild ${{ env.Wap_Project_Path }} /p:Configuration=${{ matrix.configuration }} /p:Platform=x64
+    # Сборка WPF проекта
+    - name: Build WPF Project
+      run: dotnet build $env:Wap_Project_Path --configuration ${{ matrix.configuration }}
 
-    # Упаковка приложения в MSIX
-    - name: Package WPF App
-      run: msbuild ${{ env.Wap_Project_Path }} /p:Configuration=${{ matrix.configuration }} /p:UapAppxPackageBuildMode=StoreUpload /p:AppxBundle=Always /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
+    # Запуск тестов
+    - name: Run Unit Tests
+      run: dotnet test $env:Test_Project_Path --configuration ${{ matrix.configuration }}
 
-    # Загружаем артефакты сборки
-    - name: Upload MSIX Build Artifacts
+    # Создание пакета для WPF приложения
+    - name: Create the app package for WPF
+      run: msbuild $env:Wap_Project_Path /p:Configuration=$env:Configuration /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
+      env:
+        Appx_Bundle: Always
+        Appx_Bundle_Platforms: x86|x64
+        Appx_Package_Build_Mode: StoreUpload
+        Configuration: ${{ matrix.configuration }}
+
+    # Загрузка артефактов сборки
+    - name: Upload MSIX package
       uses: actions/upload-artifact@v3
       with:
-        name: WPF MSIX Package
+        name: MSIX Package
         path: ${{ env.Wap_Project_Directory }}\AppPackages
 
-    # Выполним упаковку приложения для вашего REST API (если требуется)
-    - name: Build and Package REST API
-      run: dotnet publish ${{ env.Solution_Name }} --configuration ${{ matrix.configuration }} --output ./publish
-
-    # Загружаем артефакты REST API (если необходимо)
-    - name: Upload API Artifacts
-      uses: actions/upload-artifact@v3
-      with:
-        name: REST API Build
-        path: ./publish
+    # Удаление временных файлов сертификатов
+    - name: Remove the pfx
+      run: Remove-Item -path $env:Wap_Project_Directory\GitHubActionsWorkflow.pfx
