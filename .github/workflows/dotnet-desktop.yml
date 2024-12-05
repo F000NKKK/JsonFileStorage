@@ -2,9 +2,9 @@ name: .NET 8 Desktop and Web API CI/CD
 
 on:
   push:
-    branches: [ "main" ]  # Используйте вашу основную ветку, если она отличается
+    branches: [ "master" ]  # Используйте вашу основную ветку, если она отличается
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 jobs:
 
