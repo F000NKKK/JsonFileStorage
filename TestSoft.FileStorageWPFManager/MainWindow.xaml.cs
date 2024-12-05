@@ -30,7 +30,7 @@ namespace TestSoft.FileStorageWPFManager
                 // Проверка на null
                 if (jsonObject == null)
                 {
-                    CreateResultTextBlock.Text = "Invalid JSON format.";
+                    ShowResponseInNewWindow("Invalid JSON format.");
                     return;
                 }
 
@@ -39,16 +39,16 @@ namespace TestSoft.FileStorageWPFManager
 
                 if (response.Success)
                 {
-                    CreateResultTextBlock.Text = $"Created successfully!\r\nData: {response.Data}";
+                    ShowResponseInNewWindow($"Created successfully!\r\nData: {response.Data}");
                 }
                 else
                 {
-                    CreateResultTextBlock.Text = $"Error: {response.ErrorMessage}";
+                    ShowResponseInNewWindow($"Error: {response.ErrorMessage}");
                 }
             }
             catch (Exception ex)
             {
-                CreateResultTextBlock.Text = $"Exception: {ex.Message}";
+                ShowResponseInNewWindow($"Exception: {ex.Message}");
             }
         }
 
@@ -64,16 +64,16 @@ namespace TestSoft.FileStorageWPFManager
                 if (response.Success)
                 {
                     var resultObject = JsonConvert.SerializeObject(response.Data, Formatting.Indented);
-                    ReadResultTextBlock.Text = resultObject;
+                    ShowResponseInNewWindow(resultObject);
                 }
                 else
                 {
-                    ReadResultTextBlock.Text = $"Error: {response.ErrorMessage}";
+                    ShowResponseInNewWindow($"Error: {response.ErrorMessage}");
                 }
             }
             catch (Exception ex)
             {
-                ReadResultTextBlock.Text = $"Exception: {ex.Message}";
+                ShowResponseInNewWindow($"Exception: {ex.Message}");
             }
         }
 
@@ -95,7 +95,7 @@ namespace TestSoft.FileStorageWPFManager
 
                 if (patchRequest == null || patchRequest.Operations == null || patchRequest.Operations.Count == 0)
                 {
-                    UpdateResultTextBlock.Text = "Invalid patch request format.";
+                    ShowResponseInNewWindow("Invalid patch request format.");
                     return;
                 }
 
@@ -103,16 +103,16 @@ namespace TestSoft.FileStorageWPFManager
 
                 if (response.Success)
                 {
-                    UpdateResultTextBlock.Text = "Updated successfully!";
+                    ShowResponseInNewWindow("Updated successfully!");
                 }
                 else
                 {
-                    UpdateResultTextBlock.Text = $"Error: {response.ErrorMessage}";
+                    ShowResponseInNewWindow($"Error: {response.ErrorMessage}");
                 }
             }
             catch (Exception ex)
             {
-                UpdateResultTextBlock.Text = $"Exception: {ex.Message}";
+                ShowResponseInNewWindow($"Exception: {ex.Message}");
             }
         }
 
@@ -126,22 +126,31 @@ namespace TestSoft.FileStorageWPFManager
 
                 if (response.Success)
                 {
-                    DeleteResultTextBlock.Text = "Deleted successfully!";
+                    ShowResponseInNewWindow("Deleted successfully!");
                 }
                 else
                 {
-                    DeleteResultTextBlock.Text = $"Error: {response.ErrorMessage}";
+                    ShowResponseInNewWindow($"Error: {response.ErrorMessage}");
                 }
             }
             catch (Exception ex)
             {
-                DeleteResultTextBlock.Text = $"Exception: {ex.Message}";
+                ShowResponseInNewWindow($"Exception: {ex.Message}");
             }
         }
+
+        private void ShowResponseInNewWindow(string responseText)
+        {
+            var responseWindow = new ResponseWindow();
+            responseWindow.ResponseTextBox.Text = responseText;
+            responseWindow.Show();
+        }
+
+
         // Create
         private void CreateTextBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (CreateTextBox.Text == "Enter JSON data to create")
+            if (CreateTextBox.Text == "Enter JSON-string to create")
             {
                 CreateTextBox.Text = string.Empty;
             }
@@ -151,7 +160,7 @@ namespace TestSoft.FileStorageWPFManager
         {
             if (string.IsNullOrWhiteSpace(CreateTextBox.Text))
             {
-                CreateTextBox.Text = "Enter JSON data to create";
+                CreateTextBox.Text = "Enter JSON-string to create";
             }
         }
 
@@ -192,7 +201,7 @@ namespace TestSoft.FileStorageWPFManager
         // Обработчик для ValueTextBox
         private void ValueTextBox_GotFocus(object sender, RoutedEventArgs e)
         {
-            if (ValueTextBox.Text == "Enter value")
+            if (ValueTextBox.Text == "Enter JSON-string")
             {
                 ValueTextBox.Text = string.Empty;
             }
@@ -202,7 +211,7 @@ namespace TestSoft.FileStorageWPFManager
         {
             if (string.IsNullOrWhiteSpace(ValueTextBox.Text))
             {
-                ValueTextBox.Text = "Enter value";
+                ValueTextBox.Text = "Enter JSON-string";
             }
         }
 
