@@ -7,26 +7,41 @@ using TestSoft.FileStorageWPFLibrary.Models;
 
 namespace TestSoft.FileStorageWPFLibrary
 {
+    /// <summary>
+    /// Client for interacting with the FileStorage API.
+    /// </summary>
     public class FileStorageApiClient
     {
         private readonly HttpClient _httpClient;
         private readonly string _apiBaseUrl;
 
-        // Конструктор с передачей URL API и HttpClient
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FileStorageApiClient"/> class with specified HttpClient and API base URL.
+        /// </summary>
+        /// <param name="httpClient">The HttpClient instance to send requests.</param>
+        /// <param name="apiBaseUrl">The base URL of the FileStorage API.</param>
         public FileStorageApiClient(HttpClient httpClient, string apiBaseUrl)
         {
             _httpClient = httpClient;
             _apiBaseUrl = apiBaseUrl;
-            SetRequestHeaders("application/json"); // Заголовок по умолчанию
+            SetRequestHeaders("application/json"); // Default header for JSON responses
         }
 
-        // Метод для установки заголовков
+        /// <summary>
+        /// Sets the default request headers for the HttpClient.
+        /// </summary>
+        /// <param name="acceptHeader">The value for the Accept header.</param>
         private void SetRequestHeaders(string acceptHeader)
         {
             _httpClient.DefaultRequestHeaders.Accept.Clear();
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(acceptHeader));
         }
 
+        /// <summary>
+        /// Retrieves a JSON object from the FileStorage API by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the JSON object.</param>
+        /// <returns>Returns an <see cref="ApiResponse{T}"/> containing the JSON object or an error.</returns>
         public async Task<ApiResponse<JsonObjectDto?>> GetJsonObject(Guid id)
         {
             try
@@ -47,16 +62,30 @@ namespace TestSoft.FileStorageWPFLibrary
             }
         }
 
+        /// <summary>
+        /// Creates a new JSON object in the FileStorage API.
+        /// </summary>
+        /// <param name="jsonObject">The JSON object to create.</param>
+        /// <returns>Returns an <see cref="ApiResponse{T}"/> containing the created JSON object or an error.</returns>
         public async Task<ApiResponse<JsonObjectDto?>> CreateJsonObject(JsonObjectDto jsonObject)
         {
             try
             {
                 var content = new StringContent(JsonConvert.SerializeObject(jsonObject), Encoding.UTF8, "application/json");
                 var response = await _httpClient.PostAsync(_apiBaseUrl, content);
+
                 if (response.IsSuccessStatusCode)
                 {
                     var resultContent = await response.Content.ReadAsStringAsync();
+
                     var resultObject = JsonConvert.DeserializeObject<JsonObjectDto>(resultContent);
+
+                    if (response.Headers.Location != null)
+                    {
+                        var id = response.Headers.Location.AbsolutePath.Split('/').Last();
+                        resultObject.Id = Guid.Parse(id);
+                    }
+
                     return new ApiResponse<JsonObjectDto?>(resultObject);
                 }
 
@@ -68,6 +97,12 @@ namespace TestSoft.FileStorageWPFLibrary
             }
         }
 
+
+        /// <summary>
+        /// Deletes a JSON object from the FileStorage API by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the JSON object to delete.</param>
+        /// <returns>Returns an <see cref="ApiResponse{T}"/> indicating the success or failure of the deletion.</returns>
         public async Task<ApiResponse<bool>> DeleteJsonObject(Guid id)
         {
             try
@@ -86,6 +121,12 @@ namespace TestSoft.FileStorageWPFLibrary
             }
         }
 
+        /// <summary>
+        /// Applies a patch to a JSON object in the FileStorage API.
+        /// </summary>
+        /// <param name="id">The ID of the JSON object to patch.</param>
+        /// <param name="patchRequest">The patch request containing the operations to apply.</param>
+        /// <returns>Returns an <see cref="ApiResponse{T}"/> containing the patched JSON object or an error.</returns>
         public async Task<ApiResponse<JsonObjectDto?>> ApplyPatch(Guid id, JsonPatchRequestDto patchRequest)
         {
             try

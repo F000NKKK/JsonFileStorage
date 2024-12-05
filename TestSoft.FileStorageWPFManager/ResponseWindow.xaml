@@ -5,8 +5,21 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TestSoft.FileStorageWPFManager"
         mc:Ignorable="d"
-        Title="Window1" Height="450" Width="800">
+        Title="Response Window" Height="450" Width="800">
     <Grid>
-        <TextBox x:Name="ResponseTextBox" IsReadOnly="True" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Width="480" Height="250" Margin="10" />
+        <!-- ScrollViewer for both vertical and horizontal scrolling -->
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <!-- TextBox that occupies all available space in the Grid -->
+            <TextBox x:Name="ResponseTextBox" 
+                     IsReadOnly="True" 
+                     AcceptsReturn="True" 
+                     VerticalScrollBarVisibility="Auto" 
+                     HorizontalScrollBarVisibility="Auto" 
+                     TextWrapping="Wrap" 
+                     Margin="0" 
+                     VerticalAlignment="Stretch" 
+                     HorizontalAlignment="Stretch" />
+        </ScrollViewer>
     </Grid>
 </Window>
+

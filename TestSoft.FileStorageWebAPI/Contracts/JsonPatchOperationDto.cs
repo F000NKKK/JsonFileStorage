@@ -1,21 +1,24 @@
 namespace TestSoft.FileStorageWebAPI.Contracts
 {
+    /// <summary>
+    /// Represents a single patch operation for modifying a JSON object.
+    /// </summary>
     public class JsonPatchOperationDto
     {
         /// <summary>
-        /// Тип операции: add, replace, remove.
+        /// Gets or sets the operation type: add, replace, or remove.
         /// </summary>
         public required string Op { get; set; }
 
         /// <summary>
-        /// Путь к элементу в JSON, например: /property/nestedProperty.
+        /// Gets or sets the path to the element in the JSON object.
+        /// Example: "/property/nestedProperty".
         /// </summary>
         public required string Path { get; set; }
 
         /// <summary>
-        /// Объект, который добавляется или заменяется (используется для add/replace).
+        /// Gets or sets the value that will be added or replaced in the JSON object (used for add/replace operations).
         /// </summary>
         public object? Value { get; set; }
     }
-
 }
