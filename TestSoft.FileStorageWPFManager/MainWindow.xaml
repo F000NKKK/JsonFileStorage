@@ -1,0 +1,70 @@
+﻿<Window x:Class="TestSoft.FileStorageWPFManager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TestSoft.FileStorageWPFManager"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+
+    <Grid>
+        <TabControl>
+            <TabItem Header="Create">
+                <StackPanel>
+                    <!-- Используем стандартный TextBox с Text как Placeholder -->
+                    <TextBox x:Name="CreateTextBox" Width="300" Margin="10" Text="Enter JSON data to create" 
+                             GotFocus="CreateTextBox_GotFocus" LostFocus="CreateTextBox_LostFocus" />
+                    <Button Content="Create" Click="CreateButton_Click" Width="100" Margin="10" />
+                    <TextBlock x:Name="CreateResultTextBlock" Margin="10" />
+                </StackPanel>
+            </TabItem>
+
+            <TabItem Header="Read">
+                <StackPanel>
+                    <TextBox x:Name="ReadIdTextBox" Width="200" Margin="10" Text="Enter ID to read" 
+                             GotFocus="ReadIdTextBox_GotFocus" LostFocus="ReadIdTextBox_LostFocus" />
+                    <Button Content="Read" Click="ReadButton_Click" Width="100" Margin="10" />
+                    <TextBlock x:Name="ReadResultTextBlock" Margin="10" />
+                </StackPanel>
+            </TabItem>
+
+            <TabItem Header="Update">
+                <StackPanel>
+                    <!-- GUID объекта для обновления -->
+                    <TextBox x:Name="UpdateGuidTextBox" Width="200" Margin="10" Text="Enter GUID to update" 
+                 GotFocus="UpdateGuidTextBox_GotFocus" LostFocus="UpdateGuidTextBox_LostFocus" />
+
+                    <!-- Выпадающий список операций (add, replace, remove) -->
+                    <ComboBox x:Name="OperationComboBox" Width="200" Margin="10">
+                        <ComboBoxItem Content="add" />
+                        <ComboBoxItem Content="replace" />
+                        <ComboBoxItem Content="remove" />
+                    </ComboBox>
+
+                    <!-- Путь для операции -->
+                    <TextBox x:Name="PathTextBox" Width="200" Margin="10" Text="Enter path" 
+                 GotFocus="PathTextBox_GotFocus" LostFocus="PathTextBox_LostFocus" />
+
+                    <!-- Значение для операции -->
+                    <TextBox x:Name="ValueTextBox" Width="200" Margin="10" Text="Enter value" 
+                 GotFocus="ValueTextBox_GotFocus" LostFocus="ValueTextBox_LostFocus" />
+
+                    <!-- Кнопка обновления -->
+                    <Button Content="Update" Click="UpdateButton_Click" Width="100" Margin="10" />
+
+                    <!-- Результат обновления -->
+                    <TextBlock x:Name="UpdateResultTextBlock" Margin="10" />
+                </StackPanel>
+            </TabItem>
+
+            <TabItem Header="Delete">
+                <StackPanel>
+                    <TextBox x:Name="DeleteIdTextBox" Width="200" Margin="10" Text="Enter ID to delete" 
+                             GotFocus="DeleteIdTextBox_GotFocus" LostFocus="DeleteIdTextBox_LostFocus" />
+                    <Button Content="Delete" Click="DeleteButton_Click" Width="100" Margin="10" />
+                    <TextBlock x:Name="DeleteResultTextBlock" Margin="10" />
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
