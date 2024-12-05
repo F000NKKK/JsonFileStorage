@@ -36,7 +36,6 @@ namespace TestSoft.FileStorageWebAPI.API.Tests
         [Test]
         public async Task Test_CreateJsonObject_ShouldReturnSuccess()
         {
-            // Подготавливаем данные для нового JSON объекта
             var newJsonObject = new JsonObjectDto
             {
                 Data = new Dictionary<string, object>
@@ -53,13 +52,10 @@ namespace TestSoft.FileStorageWebAPI.API.Tests
                 "application/json"
             );
 
-            // Отправляем POST запрос на создание объекта
             var response = await _client.PostAsync("/api/json", content);
 
-            // Проверяем, что запрос прошел успешно
             Assert.IsTrue(response.IsSuccessStatusCode, "The 'json' API should accept POST requests and create an object.");
 
-            // Дополнительно: можно проверить, что в ответе возвращается созданный объект
             var responseContent = await response.Content.ReadAsStringAsync();
             var createdObject = JsonConvert.DeserializeObject<JsonObjectDto>(responseContent);
 
@@ -82,7 +78,6 @@ namespace TestSoft.FileStorageWebAPI.API.Tests
         [Test]
         public async Task Test_DeleteJsonObject_ShouldReturnSuccess()
         {
-            // Подготавливаем данные для нового JSON объекта
             var newJsonObject = new JsonObjectDto
             {
                 Data = new Dictionary<string, object>
@@ -104,21 +99,17 @@ namespace TestSoft.FileStorageWebAPI.API.Tests
 
             Assert.IsNotNull(id, "The object should be created successfully.");
 
-            // Отправляем DELETE запрос на удаление созданного объекта
             var deleteResponse = await _client.DeleteAsync($"/api/json/{id}");
 
-            // Получаем ID созданного объекта из ответа
             var responseDeleteContent = await deleteResponse.Content.ReadAsStringAsync();
             var deleteObject = JsonConvert.DeserializeObject<JsonObjectDto>(responseDeleteContent);
 
-            // Проверяем, что запрос прошел успешно
             Assert.IsTrue(deleteResponse.IsSuccessStatusCode, "The 'json' API should accept DELETE requests and remove an object.");
         }
 
         [Test]
         public async Task Test_UpdateJsonObject_ShouldReturnSuccess()
         {
-            // Создаем новый запрос с операцией PATCH
             var patchRequest = new JsonPatchRequestDto
             {
                 Operations = new List<JsonPatchOperationDto>
@@ -138,13 +129,10 @@ namespace TestSoft.FileStorageWebAPI.API.Tests
                 "application/json"
             );
 
-            // Отправляем PATCH запрос на обновление объекта
             var response = await _client.PatchAsync($"/api/json/{_guid}", content);
 
-            // Проверяем, что запрос прошел успешно
             Assert.IsTrue(response.IsSuccessStatusCode, "The 'json' API should accept PATCH requests and update an object.");
 
-            // Проверяем, что объект был обновлен
             var responseContent = await response.Content.ReadAsStringAsync();
             var updatedObject = JsonConvert.DeserializeObject<JsonObjectDto>(responseContent);
 

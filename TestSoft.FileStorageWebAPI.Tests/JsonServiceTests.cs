@@ -36,7 +36,6 @@ public void Setup()
                 }
             };
 
-            // Мокаем добавление файла
             _fileStorageServiceMock.Setup(f => f.AddOrUpdate(It.IsAny<FileDataDto>()));
 
             // Act
