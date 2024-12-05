@@ -18,42 +18,42 @@ namespace TestSoft.FileStorageWebAPI.Controllers
         }
 
         /// <summary>
-        /// Применить Patch-операции к JSON-объекту.
+        /// Apply Patch operations to a JSON object.
         /// </summary>
-        /// <param name="id">Идентификатор JSON-объекта.</param>
-        /// <param name="patchRequest">Список операций Patch.</param>
-        /// <returns>Обновлённый объект или ошибка.</returns>
+        /// <param name="id">The ID of the JSON object.</param>
+        /// <param name="patchRequest">The list of Patch operations.</param>
+        /// <returns>The updated object or an error.</returns>
         [HttpPatch("{id:guid}")]
         public IActionResult PatchJsonObject(Guid id, [FromBody] JsonPatchRequestDto patchRequest)
         {
-            _logger.LogInformation("Начало применения Patch-операций к объекту с ID {Id}", id);
+            _logger.LogInformation("Started applying Patch operations to object with ID {Id}", id);
 
             var result = _jsonService.ApplyPatch(id, patchRequest.Operations);
 
             if (!result.Success)
             {
-                _logger.LogWarning("Ошибка при применении Patch-операций: {ErrorMessage}", result.ErrorMessage);
+                _logger.LogWarning("Error applying Patch operations: {ErrorMessage}", result.ErrorMessage);
                 return BadRequest(result.ErrorMessage);
             }
 
-            _logger.LogInformation("Patch-операции успешно применены к объекту с ID {Id}", id);
+            _logger.LogInformation("Patch operations successfully applied to object with ID {Id}", id);
             return Ok(result.UpdatedObject);
         }
 
         /// <summary>
-        /// Получить JSON-объект по ID.
+        /// Get a JSON object by ID.
         /// </summary>
-        /// <param name="id">Идентификатор JSON-объекта.</param>
-        /// <returns>Найденный объект или NotFound.</returns>
+        /// <param name="id">The ID of the JSON object.</param>
+        /// <returns>The found object or NotFound.</returns>
         [HttpGet("{id:guid}", Name = "GetJsonObject")]
         public IActionResult GetJsonObject(Guid id)
         {
-            _logger.LogInformation("Получение JSON-объекта с ID {Id}", id);
+            _logger.LogInformation("Retrieving JSON object with ID {Id}", id);
 
             var jsonObject = _jsonService.GetById(id);
             if (jsonObject == null)
             {
-                _logger.LogWarning("Объект с ID {Id} не найден", id);
+                _logger.LogWarning("Object with ID {Id} not found", id);
                 return NotFound();
             }
 
@@ -63,7 +63,7 @@ namespace TestSoft.FileStorageWebAPI.Controllers
         [HttpPost]
         public IActionResult CreateJsonObject([FromBody] JsonObjectDto jsonObject)
         {
-            _logger.LogInformation("Добавление нового JSON-объекта");
+            _logger.LogInformation("Adding new JSON object");
 
             var id = _jsonService.Add(jsonObject);
             return CreatedAtRoute("GetJsonObject", new { id }, jsonObject);
@@ -72,12 +72,12 @@ namespace TestSoft.FileStorageWebAPI.Controllers
         [HttpDelete("{id:guid}")]
         public IActionResult DeleteJsonObject(Guid id)
         {
-            _logger.LogInformation("Удаление JSON-объекта с ID {Id}", id);
+            _logger.LogInformation("Deleting JSON object with ID {Id}", id);
 
             var success = _jsonService.Delete(id);
             if (!success)
             {
-                _logger.LogWarning("Объект с ID {Id} не найден для удаления", id);
+                _logger.LogWarning("Object with ID {Id} not found for deletion", id);
                 return NotFound();
             }
 
