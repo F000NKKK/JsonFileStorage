@@ -70,7 +70,7 @@ namespace TestSoft.FileStorageWPFManager
                 if (response.IsSuccess)
                 {
                     var resultObject = JsonConvert.SerializeObject(response.Data, Formatting.Indented);
-                    ShowResponseInNewWindow(resultObject);
+                    ShowResponseInNewWindow("Read successfully\r\n" + resultObject);
                 }
                 else
                 {
@@ -110,7 +110,8 @@ namespace TestSoft.FileStorageWPFManager
 
                 if (response.IsSuccess)
                 {
-                    ShowResponseInNewWindow("Updated successfully!");
+                    var resultObject = JsonConvert.SerializeObject(response.Data, Formatting.Indented);
+                    ShowResponseInNewWindow("Updated successfully!\r\n" + resultObject);
                 }
                 else
                 {
@@ -135,7 +136,8 @@ namespace TestSoft.FileStorageWPFManager
 
                 if (response.IsSuccess)
                 {
-                    ShowResponseInNewWindow("Deleted successfully!");
+                    var resultObject = JsonConvert.SerializeObject(response.Data, Formatting.Indented);
+                    ShowResponseInNewWindow("Deleted successfully!\r\n" + resultObject);
                 }
                 else
                 {

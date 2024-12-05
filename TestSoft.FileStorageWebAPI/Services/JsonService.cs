@@ -9,13 +9,13 @@ namespace TestSoft.FileStorageWebAPI.Services
 {
     public class JsonService : IJsonService
     {
-        private readonly FileStorageService _fileStorageService;
+        private readonly IFileStorageService _fileStorageService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="JsonService"/> class.
         /// </summary>
         /// <param name="fileStorageService">The file storage service used to manage file operations.</param>
-        public JsonService(FileStorageService fileStorageService)
+        public JsonService(IFileStorageService fileStorageService)
         {
             _fileStorageService = fileStorageService;
         }

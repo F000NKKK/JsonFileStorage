@@ -6,18 +6,19 @@ namespace TestSoft.FileStorageLibrary.Services
     /// <summary>
     /// Provides services for storing, retrieving, and managing files in a file system.
     /// </summary>
-    public class FileStorageService
+    public class FileStorageService : IFileStorageService
     {
         private readonly string _storageDirectory;
-
+        private readonly IFileSystem _fileSystem;
         /// <summary>
         /// Initializes a new instance of the <see cref="FileStorageService"/> class.
         /// Creates the storage directory if it doesn't exist.
         /// </summary>
         /// <param name="storageDirectory">The directory where files will be stored.</param>
-        public FileStorageService(string storageDirectory)
+        public FileStorageService(string storageDirectory, IFileSystem fileSystem)
         {
             _storageDirectory = storageDirectory;
+            _fileSystem = fileSystem;
             Directory.CreateDirectory(_storageDirectory); // Create directory for storing files if it doesn't exist
         }
 
@@ -42,9 +43,9 @@ namespace TestSoft.FileStorageLibrary.Services
         {
             var filePath = GetFilePath(id);
 
-            if (!File.Exists(filePath)) return null;
+            if (!_fileSystem.Exists(filePath)) return null;
 
-            var jsonString = File.ReadAllText(filePath);
+            var jsonString = _fileSystem.ReadAllText(filePath);
             return JsonSerializer.Deserialize<FileDataDto>(jsonString);
         }
 
@@ -56,7 +57,7 @@ namespace TestSoft.FileStorageLibrary.Services
         {
             var filePath = GetFilePath(data.Id);
             var jsonString = JsonSerializer.Serialize(data);
-            File.WriteAllText(filePath, jsonString); // Overwrite the file
+            _fileSystem.WriteAllText(filePath, jsonString); // Overwrite the file
         }
 
         /// <summary>
@@ -67,9 +68,9 @@ namespace TestSoft.FileStorageLibrary.Services
         public bool Delete(Guid id)
         {
             var filePath = GetFilePath(id);
-            if (File.Exists(filePath))
+            if (_fileSystem.Exists(filePath))
             {
-                File.Delete(filePath);
+                _fileSystem.Delete(filePath);
                 return true;
             }
             return false;
@@ -86,15 +87,49 @@ namespace TestSoft.FileStorageLibrary.Services
 
             foreach (var file in files)
             {
-                var jsonString = File.ReadAllText(file);
-                var data = JsonSerializer.Deserialize<FileDataDto>(jsonString);
-                if (data != null)
+                string jsonString;
+
+                try
                 {
-                    fileDataList.Add(data);
+                    jsonString = _fileSystem.ReadAllText(file); // Чтение данных из файла
+                }
+                catch (IOException ex)
+                {
+                    // Логируем ошибку, если не удается прочитать файл
+                    Console.WriteLine($"Error reading file {file}: {ex.Message}");
+                    continue; // Пропускаем файл, если ошибка чтения
+                }
+
+                if (string.IsNullOrEmpty(jsonString))
+                {
+                    // Пропускаем пустые файлы
+                    Console.WriteLine($"File {file} is empty, skipping.");
+                    continue;
+                }
+
+                try
+                {
+                    var data = JsonSerializer.Deserialize<FileDataDto>(jsonString); // Десериализация
+                    if (data != null)
+                    {
+                        fileDataList.Add(data); // Добавляем только валидные данные
+                    }
+                    else
+                    {
+                        // Логируем, если десериализация вернула null
+                        Console.WriteLine($"Failed to deserialize file {file}, skipping.");
+                    }
+                }
+                catch (JsonException ex)
+                {
+                    // Логируем ошибку десериализации
+                    Console.WriteLine($"Error deserializing file {file}: {ex.Message}");
+                    continue; // Пропускаем файл с некорректными данными
                 }
             }
 
             return fileDataList;
         }
+
     }
 }
