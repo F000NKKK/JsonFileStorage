@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestSoft.FileStorageWPFLibr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSoft.FileStorageWPFManager", "TestSoft.FileStorageWPFManager\TestSoft.FileStorageWPFManager.csproj", "{B8D4488F-FD03-4823-A7F4-0190EE271866}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSoft.FileStorageWebAPI.Tests", "TestSoft.FileStorageWebAPI.Tests\TestSoft.FileStorageWebAPI.Tests.csproj", "{298F539E-8335-462C-98B0-148066329D71}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{B8D4488F-FD03-4823-A7F4-0190EE271866}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B8D4488F-FD03-4823-A7F4-0190EE271866}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B8D4488F-FD03-4823-A7F4-0190EE271866}.Release|Any CPU.Build.0 = Release|Any CPU
+		{298F539E-8335-462C-98B0-148066329D71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{298F539E-8335-462C-98B0-148066329D71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{298F539E-8335-462C-98B0-148066329D71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{298F539E-8335-462C-98B0-148066329D71}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

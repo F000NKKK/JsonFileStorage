@@ -33,7 +33,9 @@ namespace TestSoft.FileStorageWebAPI
             /// Registering the JSON service and file storage service for dependency injection.
             /// </summary>
             builder.Services.AddScoped<IJsonService, JsonService>();
-            builder.Services.AddScoped<FileStorageService>(provider => new FileStorageService(storageDirectory));
+            builder.Services.AddScoped<IFileSystem, FileSystem>();
+            builder.Services.AddScoped<IFileStorageService, FileStorageService>(provider =>
+                new FileStorageService(storageDirectory, provider.GetRequiredService<IFileSystem>()));
 
             // Add controllers to the service collection
             builder.Services.AddControllers();
@@ -50,8 +52,6 @@ namespace TestSoft.FileStorageWebAPI
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
-            app.UseHttpsRedirection();
 
             // Map routes to controllers
             app.MapControllers();
