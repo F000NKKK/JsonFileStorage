@@ -74,4 +74,11 @@ jobs:
 
     # Удаление временных файлов сертификатов
     - name: Remove the pfx
-      run: Remove-Item -path $env:Wap_Project_Directory\GitHubActionsWorkflow.pfx
+      run: |
+        $pfxPath = Join-Path -Path $env:Wap_Project_Directory -ChildPath 'GitHubActionsWorkflow.pfx'
+        if (Test-Path $pfxPath) {
+          Remove-Item -Path $pfxPath
+        } else {
+          Write-Host "No PFX file found to delete."
+        }
+
