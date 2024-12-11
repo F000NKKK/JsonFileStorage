@@ -25,12 +25,12 @@ namespace TestSoft.FileStorageWebAPI.Services
         /// </summary>
         /// <param name="jsonObject">The JSON object to be added.</param>
         /// <returns>The identifier of the added object.</returns>
-        public Guid Add(JsonObjectDto jsonObject)
+        public async Task<Guid> AddAsync(JsonObjectDto jsonObject)
         {
             var id = Guid.NewGuid();
             var fileData = new FileDataDto { Id = id, Data = jsonObject.Data };
 
-            _fileStorageService.AddOrUpdate(fileData);  // Saves or updates the file
+            await _fileStorageService.AddAsync(fileData);  // Saves or updates the file
             return id;
         }
 
@@ -49,9 +49,9 @@ namespace TestSoft.FileStorageWebAPI.Services
         /// </summary>
         /// <param name="id">The identifier of the JSON object.</param>
         /// <returns>The JSON object if found, otherwise null.</returns>
-        public JsonObjectDto GetById(Guid id)
+        public async Task<JsonObjectDto> GetByIdAsync(Guid id)
         {
-            var fileData = _fileStorageService.Get(id);
+            var fileData = await _fileStorageService.GetAsync(id);
             return fileData != null ? new JsonObjectDto { Data = fileData.Data } : null!;
         }
 
@@ -61,9 +61,9 @@ namespace TestSoft.FileStorageWebAPI.Services
         /// <param name="id">The identifier of the JSON object.</param>
         /// <param name="operations">The list of Patch operations to apply.</param>
         /// <returns>A tuple containing success status, an error message (if any), and the updated JSON object.</returns>
-        public (bool Success, string? ErrorMessage, JsonObjectDto UpdatedObject) ApplyPatch(Guid id, List<JsonPatchOperationDto> operations)
+        public async Task<(bool Success, string? ErrorMessage, JsonObjectDto UpdatedObject)> ApplyPatchAsync(Guid id, List<JsonPatchOperationDto> operations)
         {
-            var fileData = _fileStorageService.Get(id);
+            var fileData = await _fileStorageService.GetAsync(id);
             if (fileData == null)
             {
                 return (false, "Object not found", null!);
@@ -85,7 +85,8 @@ namespace TestSoft.FileStorageWebAPI.Services
             }
 
             fileData.Data = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonNode.ToJsonString())!;
-            _fileStorageService.AddOrUpdate(fileData);  // Updates the file with the new data
+
+            await _fileStorageService.UpdateAsync(fileData);  // Updates the file with the new data
             return (true, null, new JsonObjectDto { Data = fileData.Data });
         }
 
