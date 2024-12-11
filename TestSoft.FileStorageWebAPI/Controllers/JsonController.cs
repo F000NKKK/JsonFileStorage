@@ -66,6 +66,7 @@ namespace TestSoft.FileStorageWebAPI.Controllers
             _logger.LogInformation("Adding new JSON object");
 
             var id = await _jsonService.AddAsync(jsonObject);
+
             return CreatedAtRoute("GetJsonObject", new { id }, jsonObject);
         }
 

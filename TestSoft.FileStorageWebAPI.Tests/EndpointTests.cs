@@ -6,9 +6,6 @@ using TestSoft.FileStorageWebAPI.Contracts;
 
 namespace TestSoft.FileStorageWebAPI.API.Tests
 {
-    /// <summary>
-    /// Web API Program tests for configuration and service setup.
-    /// </summary>
     public class EndpointTests
     {
         private WebApplicationFactory<Program> _factory;
@@ -30,7 +27,7 @@ namespace TestSoft.FileStorageWebAPI.API.Tests
 
             _client = _factory.CreateClient();
             _client.BaseAddress = new Uri("http://localhost:5000/api/json");
-            _guid = "820997d5-3888-454a-8f3e-4b27bad1d300";
+            _guid = "860a51b2-0517-4244-8283-277fe94be0e0";
         }
 
         [Test]
@@ -54,13 +51,13 @@ namespace TestSoft.FileStorageWebAPI.API.Tests
 
             var response = await _client.PostAsync("/api/json", content);
 
-            Assert.IsTrue(response.IsSuccessStatusCode, "The 'json' API should accept POST requests and create an object.");
+            Assert.That(response.IsSuccessStatusCode, Is.True, "The 'json' API should accept POST requests and create an object.");
 
             var responseContent = await response.Content.ReadAsStringAsync();
             var createdObject = JsonConvert.DeserializeObject<JsonObjectDto>(responseContent);
 
-            Assert.IsNotNull(createdObject, "The response should contain the created JSON object.");
-            Assert.AreEqual(3, createdObject?.Data?.Count, "The created object should have 3 key-value pairs.");
+            Assert.That(createdObject, Is.Not.Null, "The response should contain the created JSON object.");
+            Assert.That(createdObject?.Data?.Count, Is.EqualTo(3), "The created object should have 3 key-value pairs.");
         }
 
         [Test]
@@ -71,8 +68,8 @@ namespace TestSoft.FileStorageWebAPI.API.Tests
             var responseContent = await response.Content.ReadAsStringAsync();
             var createdObject = JsonConvert.DeserializeObject<JsonObjectDto>(responseContent);
 
-            Assert.IsNotNull(createdObject, "The response should contain the created JSON object.");
-            Assert.IsTrue(response.IsSuccessStatusCode, "The 'json' API should return the object successfully.");
+            Assert.That(createdObject, Is.Not.Null, "The response should contain the created JSON object.");
+            Assert.That(response.IsSuccessStatusCode, Is.True, "The 'json' API should return the object successfully.");
         }
 
         [Test]
@@ -97,14 +94,14 @@ namespace TestSoft.FileStorageWebAPI.API.Tests
 
             var id = createResponse.Headers.ToString().Split("/json/")[1];
 
-            Assert.IsNotNull(id, "The object should be created successfully.");
+            Assert.That(id, Is.Not.Null.Or.Empty, "The object should be created successfully.");
 
             var deleteResponse = await _client.DeleteAsync($"/api/json/{id}");
 
             var responseDeleteContent = await deleteResponse.Content.ReadAsStringAsync();
             var deleteObject = JsonConvert.DeserializeObject<JsonObjectDto>(responseDeleteContent);
 
-            Assert.IsTrue(deleteResponse.IsSuccessStatusCode, "The 'json' API should accept DELETE requests and remove an object.");
+            Assert.That(deleteResponse.IsSuccessStatusCode, Is.True, "The 'json' API should accept DELETE requests and remove an object.");
         }
 
         [Test]
@@ -131,13 +128,13 @@ namespace TestSoft.FileStorageWebAPI.API.Tests
 
             var response = await _client.PatchAsync($"/api/json/{_guid}", content);
 
-            Assert.IsTrue(response.IsSuccessStatusCode, "The 'json' API should accept PATCH requests and update an object.");
+            Assert.That(response.IsSuccessStatusCode, Is.True, "The 'json' API should accept PATCH requests and update an object.");
 
             var responseContent = await response.Content.ReadAsStringAsync();
             var updatedObject = JsonConvert.DeserializeObject<JsonObjectDto>(responseContent);
 
-            Assert.IsNotNull(updatedObject, "The response should contain the updated JSON object.");
-            Assert.AreEqual("Petr", updatedObject?.Data?["firstName"], "The value for 'firstName' should have been updated.");
+            Assert.That(updatedObject, Is.Not.Null, "The response should contain the updated JSON object.");
+            Assert.That(updatedObject?.Data?["firstName"], Is.EqualTo("Petr"), "The value for 'firstName' should have been updated.");
         }
 
         [TearDown]

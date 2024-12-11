@@ -3,7 +3,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using System.Text;
 using System.Text.Json;
 using TestSoft.FileStorageLibrary.Contracts;
 using TestSoft.FileStorageLibrary.Services;
@@ -32,25 +32,28 @@ namespace TestSoft.FileStorageLibrary.CRUD.Tests
         }
 
         [Test]
-        public void AddOrUpdate_ShouldSaveFile_WhenDataIsValid()
+        public async Task Add_ShouldSaveFile_WhenDataIsValidAsync()
         {
+            // Arrange
             var fileData = new FileDataDto
             {
                 Id = Guid.NewGuid(),
                 Data = new Dictionary<string, object> { { "key1", "value1" } }
             };
 
-            _fileSystemMock.Setup(fs => fs.WriteAllText(It.IsAny<string>(), It.IsAny<string>()));
+            _fileSystemMock.Setup(fs => fs.WriteCompressedFileAsync(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()));
 
-            _fileStorageService.AddOrUpdate(fileData);
+            // Act
+            await _fileStorageService.AddAsync(fileData);
 
-            _fileSystemMock.Verify(fs => fs.WriteAllText(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+            // Assert
+            _fileSystemMock.Verify(fs => fs.WriteCompressedFileAsync(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
-
         [Test]
-        public void Get_ShouldReturnFileData_WhenFileExists()
+        public async Task Get_ShouldReturnFileData_WhenFileExistsAsync()
         {
+            // Arrange
             var fileId = Guid.NewGuid();
             var fileData = new FileDataDto
             {
@@ -63,52 +66,65 @@ namespace TestSoft.FileStorageLibrary.CRUD.Tests
             };
 
             var jsonString = JsonSerializer.Serialize(fileData);
+            byte[] jsonBytes = Encoding.UTF8.GetBytes(jsonString);
 
             _fileSystemMock.Setup(fs => fs.Exists(It.IsAny<string>())).Returns(true);
-            _fileSystemMock.Setup(fs => fs.ReadAllText(It.IsAny<string>())).Returns(jsonString);
+            _fileSystemMock.Setup(fs => fs.ReadCompressedFileAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                           .ReturnsAsync(jsonBytes);
 
-            var result = _fileStorageService.Get(fileId);
+            // Act
+            var result = await _fileStorageService.GetAsync(fileId);
 
-            Assert.IsNotNull(result);
-            Assert.AreEqual(fileId, result?.Id);
-            Assert.AreEqual("value1".Trim(), result?.Data["key1"].ToString().Trim());
+            // Assert
+            Assert.That(result, Is.Not.Null, "Get should return a file when the file exists.");
+            Assert.That(result?.Id, Is.EqualTo(fileId), "The file ID should match the expected ID.");
+            Assert.That(result?.Data["key1"]?.ToString()?.Trim(), Is.EqualTo("value1".Trim()), "The 'key1' value should match the expected value.");
         }
 
         [Test]
-        public void Get_ShouldReturnNull_WhenFileDoesNotExist()
+        public async Task Get_ShouldReturnNull_WhenFileDoesNotExistAsync()
         {
+            // Arrange
             var fileId = Guid.NewGuid();
 
             _fileSystemMock.Setup(fs => fs.Exists(It.IsAny<string>())).Returns(false);
 
-            var result = _fileStorageService.Get(fileId);
+            // Act
+            var result = await _fileStorageService.GetAsync(fileId);
 
-            Assert.IsNull(result);
+            // Assert
+            Assert.That(result, Is.Null, "Get should return null when the file does not exist.");
         }
 
         [Test]
         public void Delete_ShouldReturnTrue_WhenFileIsDeleted()
         {
+            // Arrange
             var fileId = Guid.NewGuid();
 
             _fileSystemMock.Setup(fs => fs.Exists(It.IsAny<string>())).Returns(true);
             _fileSystemMock.Setup(fs => fs.Delete(It.IsAny<string>()));
 
+            // Act
             var result = _fileStorageService.Delete(fileId);
 
-            Assert.IsTrue(result);
+            // Assert
+            Assert.That(result, Is.True, "Delete should return true when the file is deleted.");
         }
 
         [Test]
         public void Delete_ShouldReturnFalse_WhenFileDoesNotExist()
         {
+            // Arrange
             var fileId = Guid.NewGuid();
 
             _fileSystemMock.Setup(fs => fs.Exists(It.IsAny<string>())).Returns(false);
 
+            // Act
             var result = _fileStorageService.Delete(fileId);
 
-            Assert.IsFalse(result);
+            // Assert
+            Assert.That(result, Is.False, "Delete should return false when the file does not exist.");
         }
     }
 }
