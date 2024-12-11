@@ -11,15 +11,15 @@ namespace TestSoft.FileStorageWebAPI.CRUD.Tests
 {
     public class JsonServiceTests
     {
-private Mock<IFileStorageService> _fileStorageServiceMock;
-private JsonService _jsonService;
+        private Mock<IFileStorageService> _fileStorageServiceMock;
+        private JsonService _jsonService;
 
-[SetUp]
-public void Setup()
-{
-    _fileStorageServiceMock = new Mock<IFileStorageService>();
-    _jsonService = new JsonService(_fileStorageServiceMock.Object);
-}
+        [SetUp]
+        public void Setup()
+        {
+            _fileStorageServiceMock = new Mock<IFileStorageService>();
+            _jsonService = new JsonService(_fileStorageServiceMock.Object);
+        }
 
 
         [Test]
