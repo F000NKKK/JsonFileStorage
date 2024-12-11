@@ -1,70 +1,54 @@
 ﻿using System.Text.Json;
+using System.Collections.Concurrent;
 using TestSoft.FileStorageLibrary.Contracts;
+using System.Runtime.CompilerServices;
 
 namespace TestSoft.FileStorageLibrary.Services
 {
-    /// <summary>
-    /// Provides services for storing, retrieving, and managing files in a file system.
-    /// </summary>
+
     public class FileStorageService : IFileStorageService
     {
         private readonly string _storageDirectory;
         private readonly IFileSystem _fileSystem;
-        /// <summary>
-        /// Initializes a new instance of the <see cref="FileStorageService"/> class.
-        /// Creates the storage directory if it doesn't exist.
-        /// </summary>
-        /// <param name="storageDirectory">The directory where files will be stored.</param>
+
         public FileStorageService(string storageDirectory, IFileSystem fileSystem)
         {
             _storageDirectory = storageDirectory;
             _fileSystem = fileSystem;
-            Directory.CreateDirectory(_storageDirectory); // Create directory for storing files if it doesn't exist
+            Directory.CreateDirectory(_storageDirectory);
         }
 
-        /// <summary>
-        /// Generates the file path for a given ID.
-        /// </summary>
-        /// <param name="id">The unique identifier for the file.</param>
-        /// <returns>The file path of the file corresponding to the ID.</returns>
-        private string GetFilePath(Guid id)
-        {
-            // Create a unique file name based on GUID
-            var fileName = $"{id.ToString()}.json";
-            return Path.Combine(_storageDirectory, fileName);
-        }
+        private string GetFilePath(Guid id) => Path.Combine(_storageDirectory, $"{id}.json.gz");
 
-        /// <summary>
-        /// Retrieves data from a file by ID.
-        /// </summary>
-        /// <param name="id">The unique identifier for the file.</param>
-        /// <returns>The file data or null if the file does not exist.</returns>
-        public FileDataDto? Get(Guid id)
+        public async Task<FileDataDto?> GetAsync(Guid id, CancellationToken cancellationToken = default)
         {
             var filePath = GetFilePath(id);
-
             if (!_fileSystem.Exists(filePath)) return null;
 
-            var jsonString = _fileSystem.ReadAllText(filePath);
-            return JsonSerializer.Deserialize<FileDataDto>(jsonString);
+            var compressedData = await _fileSystem.ReadCompressedFileAsync(filePath, cancellationToken);
+            return JsonSerializer.Deserialize<FileDataDto>(compressedData);
         }
 
-        /// <summary>
-        /// Adds or updates data in a file.
-        /// </summary>
-        /// <param name="data">The data to add or update in the file.</param>
-        public void AddOrUpdate(FileDataDto data)
+        public async Task AddAsync(FileDataDto data, CancellationToken cancellationToken = default)
         {
             var filePath = GetFilePath(data.Id);
-            var jsonString = JsonSerializer.Serialize(data);
-            _fileSystem.WriteAllText(filePath, jsonString); // Overwrite the file
+            if (_fileSystem.Exists(filePath))
+                throw new InvalidOperationException($"File with ID {data.Id} already exists.");
+
+            var serializedData = JsonSerializer.SerializeToUtf8Bytes(data);
+            await _fileSystem.WriteCompressedFileAsync(filePath, serializedData, cancellationToken);
         }
 
-        /// <summary>
-        /// Deletes the file corresponding to the given ID.
-        /// </summary>
-        /// <param name="id">The unique identifier for the file to delete.</param>
-        /// <returns>True if the file was deleted, false if the file does not exist.</returns>
+        public async Task UpdateAsync(FileDataDto data, CancellationToken cancellationToken = default)
+        {
+            var filePath = GetFilePath(data.Id);
+            if (!_fileSystem.Exists(filePath))
+                throw new FileNotFoundException($"File with ID {data.Id} does not exist.");
+
+            var serializedData = JsonSerializer.SerializeToUtf8Bytes(data);
+            await _fileSystem.WriteCompressedFileAsync(filePath, serializedData, cancellationToken);
+        }
+
         public bool Delete(Guid id)
         {
             var filePath = GetFilePath(id);
@@ -76,60 +60,70 @@ namespace TestSoft.FileStorageLibrary.Services
             return false;
         }
 
-        /// <summary>
-        /// Retrieves all files in the storage directory.
-        /// </summary>
-        /// <returns>A collection of <see cref="FileDataDto"/> objects representing all files.</returns>
-        public IEnumerable<FileDataDto> GetAll()
+        public async IAsyncEnumerable<FileDataDto> GetAllAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            var files = Directory.GetFiles(_storageDirectory, "*.json");
-            var fileDataList = new List<FileDataDto>();
-
+            var files = await _fileSystem.GetFilesAsync(_storageDirectory, "*.json.gz", cancellationToken);
             foreach (var file in files)
             {
-                string jsonString;
-
-                try
+                cancellationToken.ThrowIfCancellationRequested();
+                var compressedData = await _fileSystem.ReadCompressedFileAsync(file, cancellationToken);
+                var data = JsonSerializer.Deserialize<FileDataDto>(compressedData);
+                if (data != null)
                 {
-                    jsonString = _fileSystem.ReadAllText(file); // Чтение данных из файла
-                }
-                catch (IOException ex)
-                {
-                    // Логируем ошибку, если не удается прочитать файл
-                    Console.WriteLine($"Error reading file {file}: {ex.Message}");
-                    continue; // Пропускаем файл, если ошибка чтения
-                }
-
-                if (string.IsNullOrEmpty(jsonString))
-                {
-                    // Пропускаем пустые файлы
-                    Console.WriteLine($"File {file} is empty, skipping.");
-                    continue;
-                }
-
-                try
-                {
-                    var data = JsonSerializer.Deserialize<FileDataDto>(jsonString); // Десериализация
-                    if (data != null)
-                    {
-                        fileDataList.Add(data); // Добавляем только валидные данные
-                    }
-                    else
-                    {
-                        // Логируем, если десериализация вернула null
-                        Console.WriteLine($"Failed to deserialize file {file}, skipping.");
-                    }
-                }
-                catch (JsonException ex)
-                {
-                    // Логируем ошибку десериализации
-                    Console.WriteLine($"Error deserializing file {file}: {ex.Message}");
-                    continue; // Пропускаем файл с некорректными данными
+                    yield return data;
                 }
             }
-
-            return fileDataList;
         }
 
+        public async Task<IEnumerable<FileDataDto>> SearchAsync(Func<FileDataDto, bool> predicate, CancellationToken cancellationToken = default)
+        {
+            var results = new ConcurrentBag<FileDataDto>();
+            await Parallel.ForEachAsync(
+                GetAllAsync(cancellationToken),
+                cancellationToken,
+                async (fileData, _) =>
+                {
+                    if (predicate(fileData))
+                    {
+                        results.Add(fileData);
+                    }
+                });
+            return results;
+        }
+
+        public async Task UpdateFieldAsync(Guid id, Action<FileDataDto> updateAction, CancellationToken cancellationToken = default)
+        {
+            var fileData = await GetAsync(id, cancellationToken);
+            if (fileData == null) return;
+            updateAction(fileData);
+            await UpdateAsync(fileData, cancellationToken);
+        }
+
+        public async Task DeleteByFilterAsync(Func<FileDataDto, bool> predicate, CancellationToken cancellationToken = default)
+        {
+            var toDelete = new ConcurrentBag<Guid>();
+            await Parallel.ForEachAsync(
+                GetAllAsync(cancellationToken),
+                cancellationToken,
+                async (fileData, _) =>
+                {
+                    if (predicate(fileData))
+                    {
+                        toDelete.Add(fileData.Id);
+                    }
+                });
+
+            Parallel.ForEach(toDelete, id => Delete(id));
+        }
+
+        public async Task<int> CountAsync(CancellationToken cancellationToken = default)
+        {
+            var count = 0;
+            await foreach (var _ in GetAllAsync(cancellationToken))
+            {
+                count++;
+            }
+            return count;
+        }
     }
 }

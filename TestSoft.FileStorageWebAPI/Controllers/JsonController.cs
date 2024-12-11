@@ -24,11 +24,11 @@ namespace TestSoft.FileStorageWebAPI.Controllers
         /// <param name="patchRequest">The list of Patch operations.</param>
         /// <returns>The updated object or an error.</returns>
         [HttpPatch("{id:guid}")]
-        public IActionResult PatchJsonObject(Guid id, [FromBody] JsonPatchRequestDto patchRequest)
+        public async Task<IActionResult> PatchJsonObjectAsync(Guid id, [FromBody] JsonPatchRequestDto patchRequest)
         {
             _logger.LogInformation("Started applying Patch operations to object with ID {Id}", id);
 
-            var result = _jsonService.ApplyPatch(id, patchRequest.Operations);
+            var result = await _jsonService.ApplyPatchAsync(id, patchRequest.Operations);
 
             if (!result.Success)
             {
@@ -46,11 +46,11 @@ namespace TestSoft.FileStorageWebAPI.Controllers
         /// <param name="id">The ID of the JSON object.</param>
         /// <returns>The found object or NotFound.</returns>
         [HttpGet("{id:guid}", Name = "GetJsonObject")]
-        public IActionResult GetJsonObject(Guid id)
+        public async Task<IActionResult> GetJsonObjectAsync(Guid id)
         {
             _logger.LogInformation("Retrieving JSON object with ID {Id}", id);
 
-            var jsonObject = _jsonService.GetById(id);
+            var jsonObject = await _jsonService.GetByIdAsync(id);
             if (jsonObject == null)
             {
                 _logger.LogWarning("Object with ID {Id} not found", id);
@@ -61,11 +61,11 @@ namespace TestSoft.FileStorageWebAPI.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateJsonObject([FromBody] JsonObjectDto jsonObject)
+        public async Task<IActionResult> CreateJsonObjectAsync([FromBody] JsonObjectDto jsonObject)
         {
             _logger.LogInformation("Adding new JSON object");
 
-            var id = _jsonService.Add(jsonObject);
+            var id = await _jsonService.AddAsync(jsonObject);
             return CreatedAtRoute("GetJsonObject", new { id }, jsonObject);
         }
 

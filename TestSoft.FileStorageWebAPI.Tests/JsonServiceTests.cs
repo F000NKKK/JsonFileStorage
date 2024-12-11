@@ -39,7 +39,7 @@ namespace TestSoft.FileStorageWebAPI.CRUD.Tests
             _fileStorageServiceMock.Setup(f => f.AddOrUpdate(It.IsAny<FileDataDto>()));
 
             // Act
-            var result = _jsonService.Add(jsonObject);
+            var result = _jsonService.AddAsync(jsonObject);
 
             // Assert
             Assert.IsInstanceOf<Guid>(result, "Add should return a new Guid.");
@@ -143,7 +143,7 @@ namespace TestSoft.FileStorageWebAPI.CRUD.Tests
             };
 
             // Act
-            var (success, error, updatedObject) = _jsonService.ApplyPatch(id, patchOperations);
+            var (success, error, updatedObject) = _jsonService.ApplyPatchAsync(id, patchOperations);
 
             // Assert
             Assert.IsTrue(success, "ApplyPatch should succeed when the patch is valid.");
@@ -170,7 +170,7 @@ namespace TestSoft.FileStorageWebAPI.CRUD.Tests
             };
 
             // Act
-            var (success, error, updatedObject) = _jsonService.ApplyPatch(id, patchOperations);
+            var (success, error, updatedObject) = _jsonService.ApplyPatchAsync(id, patchOperations);
 
             // Assert
             Assert.IsFalse(success, "ApplyPatch should fail when the object is not found.");
@@ -207,7 +207,7 @@ namespace TestSoft.FileStorageWebAPI.CRUD.Tests
             };
 
             // Act
-            var (success, error, updatedObject) = _jsonService.ApplyPatch(id, patchOperations);
+            var (success, error, updatedObject) = _jsonService.ApplyPatchAsync(id, patchOperations);
 
             // Assert
             Assert.IsFalse(success, "ApplyPatch should fail when the path is invalid.");

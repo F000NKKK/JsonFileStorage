@@ -17,21 +17,12 @@ namespace TestSoft.FileStorageWebAPI
             var builder = WebApplication.CreateBuilder(args);
 
             // Read relative storage directory path from configuration
-            /// <summary>
-            /// Reading the relative file storage directory path from the application configuration.
-            /// </summary>
             var relativeStorageDirectory = builder.Configuration.GetValue<string>("FileStorage:StorageDirectory");
 
             // Get the absolute path based on the current working directory
-            /// <summary>
-            /// Combining the current directory with the relative path to create the absolute path.
-            /// </summary>
             var storageDirectory = Path.Combine(Directory.GetCurrentDirectory(), relativeStorageDirectory);
 
             // Register services with dependency injection container
-            /// <summary>
-            /// Registering the JSON service and file storage service for dependency injection.
-            /// </summary>
             builder.Services.AddScoped<IJsonService, JsonService>();
             builder.Services.AddScoped<IFileSystem, FileSystem>();
             builder.Services.AddScoped<IFileStorageService, FileStorageService>(provider =>

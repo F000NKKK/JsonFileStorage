@@ -9,7 +9,7 @@ namespace TestSoft.FileStorageWebAPI.Services
         /// </summary>
         /// <param name="id">The identifier of the object.</param>
         /// <returns>The JSON object or null if not found.</returns>
-        JsonObjectDto GetById(Guid id);
+        Task<JsonObjectDto> GetByIdAsync(Guid id);
 
         /// <summary>
         /// Apply a list of Patch operations to the JSON object.
@@ -21,14 +21,14 @@ namespace TestSoft.FileStorageWebAPI.Services
         /// This method applies a series of Patch operations (add, replace, or remove) 
         /// to the specified JSON object identified by the provided <paramref name="id"/>.
         /// </remarks>
-        (bool Success, string? ErrorMessage, JsonObjectDto UpdatedObject) ApplyPatch(Guid id, List<JsonPatchOperationDto> operations);
+        Task<(bool Success, string? ErrorMessage, JsonObjectDto UpdatedObject)> ApplyPatchAsync(Guid id, List<JsonPatchOperationDto> operations);
 
         /// <summary>
         /// Add a new JSON object.
         /// </summary>
         /// <param name="jsonObject">The JSON object to add.</param>
         /// <returns>The identifier of the added object.</returns>
-        Guid Add(JsonObjectDto jsonObject);
+        Task<Guid> AddAsync(JsonObjectDto jsonObject);
 
         /// <summary>
         /// Delete the JSON object by its identifier.

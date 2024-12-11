@@ -1,18 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace TestSoft.FileStorageLibrary.Services
+﻿namespace TestSoft.FileStorageLibrary.Services
 {
     public interface IFileSystem
     {
         bool Exists(string path);
-        string ReadAllText(string path);
-        void WriteAllText(string path, string contents);
+        Task<byte[]> ReadCompressedFileAsync(string path, CancellationToken cancellationToken = default);
+        Task WriteCompressedFileAsync(string path, byte[] data, CancellationToken cancellationToken = default);
         void Delete(string path);
         string[] GetFiles(string path, string searchPattern);
+        Task<string[]> GetFilesAsync(string path, string searchPattern, CancellationToken cancellationToken = default);
     }
 
 }
