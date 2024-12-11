@@ -65,7 +65,15 @@ public async Task<ApiResponse<JsonObjectDto?>> CreateJsonObject(JsonObjectDto js
 }
 ```
 ## Download the assembled project
-| Releases v2.x.x | Download link                                                 | Releases v1.x.x | Download link                                                 |
-|:-------------:|:---------------------------------------------------------------:|:-------------:|:---------------------------------------------------------------:|
-| v2.0.0 Build | [Win11 x64 Release](https://github.com/F000NKKK/JsonFileStorage/releases/download/v2.0.0/JsonFileStorage_Win11_x64_build_v2.0.0.zip) | v1.5.0 Build | [Win11 x64 Release](https://github.com/F000NKKK/JsonFileStorage/releases/download/v1.5.0/JsonFileStorage_Win11_x64_build_v1.5.0.zip) |
 
+| Releases v3.x.x | Download link                                                 |
+|:-------------:|:---------------------------------------------------------------:|
+| v3.0.0 Build | [Win11 x64 Release](https://github.com/F000NKKK/JsonFileStorage/releases/download/v3.0.0/JsonFileStorage_Win11_x64_build_v3.0.0.zip) |
+
+| Releases v2.x.x | Download link                                                 |
+|:-------------:|:---------------------------------------------------------------:|
+| v2.0.0 Build | [Win11 x64 Release](https://github.com/F000NKKK/JsonFileStorage/releases/download/v2.0.0/JsonFileStorage_Win11_x64_build_v2.0.0.zip) |
+
+| Releases v1.x.x | Download link                                                 |
+|:-------------:|:---------------------------------------------------------------:|
+| v1.5.0 Build | [Win11 x64 Release](https://github.com/F000NKKK/JsonFileStorage/releases/download/v1.5.0/JsonFileStorage_Win11_x64_build_v1.5.0.zip) |
