@@ -21,9 +21,8 @@ namespace TestSoft.FileStorageWebAPI.CRUD.Tests
             _jsonService = new JsonService(_fileStorageServiceMock.Object);
         }
 
-
         [Test]
-        public void Add_ShouldReturnNewGuid()
+        public async Task Add_ShouldReturnNewGuidAsync()
         {
             // Arrange
             var jsonObject = new JsonObjectDto
@@ -36,14 +35,14 @@ namespace TestSoft.FileStorageWebAPI.CRUD.Tests
                 }
             };
 
-            _fileStorageServiceMock.Setup(f => f.AddOrUpdate(It.IsAny<FileDataDto>()));
+            _fileStorageServiceMock.Setup(f => f.AddAsync(It.IsAny<FileDataDto>(), It.IsAny<CancellationToken>()));
 
             // Act
-            var result = _jsonService.AddAsync(jsonObject);
+            var result = await _jsonService.AddAsync(jsonObject);
 
             // Assert
-            Assert.IsInstanceOf<Guid>(result, "Add should return a new Guid.");
-            _fileStorageServiceMock.Verify(f => f.AddOrUpdate(It.IsAny<FileDataDto>()), Times.Once);
+            Assert.That(result, Is.InstanceOf<Guid>(), "Add should return a new Guid.");
+            _fileStorageServiceMock.Verify(f => f.AddAsync(It.IsAny<FileDataDto>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test]
@@ -57,7 +56,7 @@ namespace TestSoft.FileStorageWebAPI.CRUD.Tests
             var result = _jsonService.Delete(id);
 
             // Assert
-            Assert.IsTrue(result, "Delete should return true when the object exists.");
+            Assert.That(result, Is.True, "Delete should return true when the object exists.");
             _fileStorageServiceMock.Verify(f => f.Delete(id), Times.Once);
         }
 
@@ -72,11 +71,11 @@ namespace TestSoft.FileStorageWebAPI.CRUD.Tests
             var result = _jsonService.Delete(id);
 
             // Assert
-            Assert.IsFalse(result, "Delete should return false when the object does not exist.");
+            Assert.That(result, Is.False, "Delete should return false when the object does not exist.");
         }
 
         [Test]
-        public void GetById_ShouldReturnJsonObject_WhenObjectExists()
+        public async Task GetById_ShouldReturnJsonObject_WhenObjectExistsAsync()
         {
             // Arrange
             var id = Guid.NewGuid();
@@ -89,96 +88,34 @@ namespace TestSoft.FileStorageWebAPI.CRUD.Tests
                     { "key2", 123 }
                 }
             };
-            _fileStorageServiceMock.Setup(f => f.Get(id)).Returns(fileData);
+            _fileStorageServiceMock.Setup(f => f.GetAsync(id, It.IsAny<CancellationToken>()))
+                       .ReturnsAsync(fileData);
 
             // Act
-            var result = _jsonService.GetById(id);
+            var result = await _jsonService.GetByIdAsync(id);
 
             // Assert
-            Assert.IsNotNull(result, "GetById should return a JSON object when it exists.");
-            Assert.AreEqual("value1", result.Data["key1"], "The data should match the expected object.");
+            Assert.That(result, Is.Not.Null, "GetById should return a JSON object when it exists.");
+            Assert.That(result?.Data?["key1"], Is.EqualTo("value1"), "The data should match the expected object.");
         }
 
         [Test]
-        public void GetById_ShouldReturnNull_WhenObjectDoesNotExist()
+        public async Task GetById_ShouldReturnNull_WhenObjectDoesNotExistAsync()
         {
             // Arrange
             var id = Guid.NewGuid();
-            _fileStorageServiceMock.Setup(f => f.Get(id)).Returns((FileDataDto?)null);
+            _fileStorageServiceMock.Setup(f => f.GetAsync(id, It.IsAny<CancellationToken>()))
+                       .ReturnsAsync((FileDataDto?)null);
 
             // Act
-            var result = _jsonService.GetById(id);
+            var result = await _jsonService.GetByIdAsync(id);
 
             // Assert
-            Assert.IsNull(result, "GetById should return null when the object does not exist.");
+            Assert.That(result, Is.Null, "GetById should return null when the object does not exist.");
         }
 
         [Test]
-        public void ApplyPatch_ShouldReturnUpdatedObject_WhenPatchIsSuccessful()
-        {
-            // Arrange
-            var id = Guid.NewGuid();
-            var initialData = new Dictionary<string, object>
-            {
-                { "key1", "value1" },
-                { "key2", 123 }
-            };
-
-            var fileData = new FileDataDto
-            {
-                Id = id,
-                Data = initialData
-            };
-
-            _fileStorageServiceMock.Setup(f => f.Get(id)).Returns(fileData);
-
-            var patchOperations = new List<JsonPatchOperationDto>
-            {
-                new JsonPatchOperationDto
-                {
-                    Op = "replace",
-                    Path = "/key1",
-                    Value = "newValue"
-                }
-            };
-
-            // Act
-            var (success, error, updatedObject) = _jsonService.ApplyPatchAsync(id, patchOperations);
-
-            // Assert
-            Assert.IsTrue(success, "ApplyPatch should succeed when the patch is valid.");
-            Assert.IsNull(error, "There should be no error message.");
-            Assert.AreEqual("newValue", updatedObject.Data["key1"].ToString(), "The value for 'key1' should be updated.");
-            _fileStorageServiceMock.Verify(f => f.AddOrUpdate(It.IsAny<FileDataDto>()), Times.Once);
-        }
-
-        [Test]
-        public void ApplyPatch_ShouldReturnError_WhenObjectNotFound()
-        {
-            // Arrange
-            var id = Guid.NewGuid();
-            _fileStorageServiceMock.Setup(f => f.Get(id)).Returns((FileDataDto?)null);
-
-            var patchOperations = new List<JsonPatchOperationDto>
-            {
-                new JsonPatchOperationDto
-                {
-                    Op = "replace",
-                    Path = "/key1",
-                    Value = "newValue"
-                }
-            };
-
-            // Act
-            var (success, error, updatedObject) = _jsonService.ApplyPatchAsync(id, patchOperations);
-
-            // Assert
-            Assert.IsFalse(success, "ApplyPatch should fail when the object is not found.");
-            Assert.AreEqual("Object not found", error, "The error message should indicate the object was not found.");
-        }
-
-        [Test]
-        public void ApplyPatch_ShouldReturnError_WhenInvalidPath()
+        public async Task ApplyPatch_ShouldReturnUpdatedObject_WhenPatchIsSuccessfulAsync()
         {
             // Arrange
             var id = Guid.NewGuid();
@@ -194,7 +131,74 @@ namespace TestSoft.FileStorageWebAPI.CRUD.Tests
                 Data = initialData
             };
 
-            _fileStorageServiceMock.Setup(f => f.Get(id)).Returns(fileData);
+            _fileStorageServiceMock.Setup(f => f.GetAsync(id, It.IsAny<CancellationToken>()))
+                       .ReturnsAsync(fileData);
+
+            var patchOperations = new List<JsonPatchOperationDto>
+            {
+                new JsonPatchOperationDto
+                {
+                    Op = "replace",
+                    Path = "/key1",
+                    Value = "newValue"
+                }
+            };
+
+            // Act
+            var (success, error, updatedObject) = await _jsonService.ApplyPatchAsync(id, patchOperations);
+
+            // Assert
+            Assert.That(success, Is.True, "ApplyPatch should succeed when the patch is valid.");
+            Assert.That(error, Is.Null, "There should be no error message.");
+            Assert.That(updatedObject?.Data?["key1"].ToString(), Is.EqualTo("newValue"), "The value for 'key1' should be updated.");
+            _fileStorageServiceMock.Verify(f => f.UpdateAsync(It.IsAny<FileDataDto>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
+        public async Task ApplyPatch_ShouldReturnError_WhenObjectNotFoundAsync()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            _fileStorageServiceMock.Setup(f => f.GetAsync(id, It.IsAny<CancellationToken>()))
+                       .ReturnsAsync((FileDataDto?)null);
+
+            var patchOperations = new List<JsonPatchOperationDto>
+            {
+                new JsonPatchOperationDto
+                {
+                    Op = "replace",
+                    Path = "/key1",
+                    Value = "newValue"
+                }
+            };
+
+            // Act
+            var (success, error, updatedObject) = await _jsonService.ApplyPatchAsync(id, patchOperations);
+
+            // Assert
+            Assert.That(success, Is.False, "ApplyPatch should fail when the object is not found.");
+            Assert.That(error, Is.EqualTo("Object not found"), "The error message should indicate the object was not found.");
+        }
+
+        [Test]
+        public async Task ApplyPatch_ShouldReturnError_WhenInvalidPathAsync()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var initialData = new Dictionary<string, object>
+            {
+                { "key1", "value1" },
+                { "key2", 123 }
+            };
+
+            var fileData = new FileDataDto
+            {
+                Id = id,
+                Data = initialData
+            };
+
+            _fileStorageServiceMock.Setup(f => f.GetAsync(id, It.IsAny<CancellationToken>()))
+                       .ReturnsAsync(fileData);
 
             var patchOperations = new List<JsonPatchOperationDto>
             {
@@ -207,11 +211,11 @@ namespace TestSoft.FileStorageWebAPI.CRUD.Tests
             };
 
             // Act
-            var (success, error, updatedObject) = _jsonService.ApplyPatchAsync(id, patchOperations);
+            var (success, error, updatedObject) = await _jsonService.ApplyPatchAsync(id, patchOperations);
 
             // Assert
-            Assert.IsFalse(success, "ApplyPatch should fail when the path is invalid.");
-            Assert.AreEqual("Path '/key3' not found for replace operation.", error, "The error message should indicate the invalid path.");
+            Assert.That(success, Is.False, "ApplyPatch should fail when the path is invalid.");
+            Assert.That(error, Is.EqualTo("Path '/key3' not found for replace operation."), "The error message should indicate the invalid path.");
         }
 
         [TearDown]
