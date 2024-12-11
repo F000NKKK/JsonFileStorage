@@ -42,17 +42,30 @@ TestSoft File Storage Manager is a powerful application that allows you to inter
 ## Example Usage in Client:
 
 ```csharp
+/// <summary>
+/// Creates a new JSON object in the FileStorage API.
+/// </summary>
+/// <param name="jsonObject">The JSON object to create.</param>
+/// <returns>Returns an <see cref="ApiResponse{T}"/> containing the created JSON object or an error.</returns>
 public async Task<ApiResponse<JsonObjectDto?>> CreateJsonObject(JsonObjectDto jsonObject)
 {
     try
     {
         var content = new StringContent(JsonConvert.SerializeObject(jsonObject), Encoding.UTF8, "application/json");
-        var response = await _httpClient.PostAsync(_apiBaseUrl + "/api/json", content);
+        var response = await _httpClient.PostAsync(_apiBaseUrl, content);
 
         if (response.IsSuccessStatusCode)
         {
             var resultContent = await response.Content.ReadAsStringAsync();
+
             var resultObject = JsonConvert.DeserializeObject<JsonObjectDto>(resultContent);
+
+            if (response.Headers.Location != null)
+            {
+                var id = response.Headers.Location.AbsolutePath.Split('/').Last();
+                resultObject.Id = Guid.Parse(id);
+            }
+
             return new ApiResponse<JsonObjectDto?>(resultObject);
         }
 
