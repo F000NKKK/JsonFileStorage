@@ -41,13 +41,13 @@ namespace TestSoft.FileStorageLibrary.CRUD.Tests
                 Data = new Dictionary<string, object> { { "key1", "value1" } }
             };
 
-            _fileSystemMock.Setup(fs => fs.WriteCompressedFileAsync(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()));
+            _fileSystemMock.Setup(fs => fs.WriteFileAsync(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()));
 
             // Act
             await _fileStorageService.AddAsync(fileData);
 
             // Assert
-            _fileSystemMock.Verify(fs => fs.WriteCompressedFileAsync(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()), Times.Once);
+            _fileSystemMock.Verify(fs => fs.WriteFileAsync(It.IsAny<string>(), It.IsAny<byte[]>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test]
