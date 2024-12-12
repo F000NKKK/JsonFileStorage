@@ -81,6 +81,7 @@ public async Task<ApiResponse<JsonObjectDto?>> CreateJsonObject(JsonObjectDto js
 
 | Releases v3.x.x | Download link                                                 |.NET version    |
 |:-------------:|:---------------------------------------------------------------:|:--------------:|
+| v3.1.0 Build | [Win11 x64 Release](https://github.com/F000NKKK/JsonFileStorage/releases/download/v3.1.0/JsonFileStorage_Win11_x64_build_v3.1.0.zip) |SDK .NET v9.0|
 | v3.0.0 Build | [Win11 x64 Release](https://github.com/F000NKKK/JsonFileStorage/releases/download/v3.0.0/JsonFileStorage_Win11_x64_build_v3.0.0.zip) |SDK .NET v9.0|
 
 | Releases v2.x.x | Download link                                                 |.NET version    |
