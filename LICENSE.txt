@@ -616,6 +616,13 @@ an absolute waiver of all civil liability in connection with the
 Program, unless a warranty or assumption of liability accompanies a
 copy of the Program in return for a fee.
 
+This software is licensed under the terms of the GNU Affero General Public License, version 3 (AGPL-3.0), with the following additional condition:
+
+ADDITIONAL CONDITION:  
+1. Commercial use of this software, in whole or in part, including derivative works, is strictly prohibited.  
+2. Redistribution of this software or its derivatives must retain this additional condition.  
+
+
                      END OF TERMS AND CONDITIONS
 
             How to Apply These Terms to Your New Programs
